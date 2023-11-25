@@ -1,24 +1,28 @@
 #include "Filme.hpp"
 
-Filme::Filme(int codigo, const std::string &titulo, int quantidade)
-    : codigo(codigo), titulo(titulo), quantidade(quantidade) {}
-
-int Filme::getCodigo() const {
+Filme::Filme(int codigo, std::string titulo, int quantidade): codigo(codigo), titulo(titulo), quantidade(quantidade) {}
+Filme::~Filme(){};
+int Filme::getCodigo()
+{
     return codigo;
 }
 
-std::string Filme::getTitulo() const {
+std::string Filme::getTitulo()
+{
     return titulo;
 }
 
-int Filme::getQuantidade() const {
+int Filme::getQuantidade()
+{
     return quantidade;
 }
 
-void Filme::diminuirQuantidade() {
+void Filme::diminuirQuantidade()
+{
     quantidade--;
 }
 
-void Filme::aumentarQuantidade() {
+void Filme::aumentarQuantidade()
+{
     quantidade++;
 }

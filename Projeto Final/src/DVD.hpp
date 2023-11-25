@@ -3,17 +3,16 @@
 
 #include "Filme.hpp"
 
-class DVD : public Filme {
+class DVD : public Filme
+{
 public:
-    DVD(int codigo, const std::string &titulo, int quantidade, const std::string &categoria);
-    virtual ~DVD() = default;
+    DVD(int codigo, std::string titulo, int quantidade, std::string categoria);
 
-    std::string getTipo() const override;
-    double calcularValorLocacao(int dias) const override;
+    virtual std::string getTipo() override;
+    virtual double calcularValorLocacao(int dias) override;
 
 private:
     std::string categoria;
 };
 
 #endif // DVD_HPP
-

@@ -2,18 +2,18 @@
 
 #include "Cliente.hpp"
 
-Cliente::Cliente(const std::string &cpf, const std::string &nome)
+Cliente::Cliente(std::string cpf, std::string nome)
     : cpf(cpf), nome(nome) {}
 
-const std::string& Cliente::getCPF() const {
+const std::string Cliente::getCPF(){
     return cpf;
 }
 
-const std::string& Cliente::getNome() const {
+const std::string Cliente::getNome(){
     return nome;
 }
 
-const std::vector<int>& Cliente::getLocacoes() const {
+const std::vector<int> Cliente::getLocacoes(){
     return locacoes;
 }
 

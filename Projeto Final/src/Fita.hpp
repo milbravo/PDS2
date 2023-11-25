@@ -3,13 +3,13 @@
 
 #include "Filme.hpp"
 
-class Fita : public Filme {
+class Fita : public Filme
+{
 public:
-    Fita(int codigo, const std::string &titulo, int quantidade, bool rebobinada);
-    virtual ~Fita() = default;
+    Fita(int codigo, std::string titulo, int quantidade, bool rebobinada);
 
-    std::string getTipo() const override;
-    double calcularValorLocacao(int dias) const override;
+    virtual std::string getTipo() override;
+    virtual double calcularValorLocacao(int dias) override;
 
 private:
     bool rebobinada;
