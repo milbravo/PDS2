@@ -19,8 +19,8 @@ int main()
             {
                 std::string nomeArquivo;
                 std::cin >> nomeArquivo;
-                std::cout << nomeArquivo << std::endl;
-                locadora.lerArquivoCadastro(nomeArquivo);
+                // locadora.lerArquivoCadastro(nomeArquivo);
+                locadora.lerArquivoCadastro("/mnt/c/users/Milton Bravo/OneDrive/Engenharia Elétrica/PDS2/Projeto final/pds2/Projeto Final/src/estoque.txt");
             }
             else if (comando == "CF")
             {

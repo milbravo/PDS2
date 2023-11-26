@@ -22,9 +22,9 @@ double DVD::calcularValorLocacao(int dias)
     {
         valor = 10.0 * dias;
     }
-    else
+    else if (categoria == "Promocao")
     {
-        std::cout << "Categoria de DVD inválida.\n";
+        valor = 10.0;
     }
 
     return valor;

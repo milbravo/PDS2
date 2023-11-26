@@ -1,4 +1,4 @@
-CF F 5 101 FILME4
-CF D 5 201 FILME3 Lancamento
-CF D 5 301 FILME2 Estoque
-CF D 5 401 FILME1 Promocao
+F 5 101 FILME4
+D 5 201 FILME3 Lancamento
+D 5 301 FILME2 Estoque
+D 5 401 FILME1 Promocao

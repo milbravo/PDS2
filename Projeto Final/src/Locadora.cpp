@@ -67,39 +67,62 @@ void Locadora::lerArquivoCadastro(std::string nomeArquivo)
 
     if (!arquivo.is_open())
     {
-        std::cout << "ERRO: arquivo inexistente.\n";
+        std::cout << "ERRO: arquivo (" << nomeArquivo << ") inexistente.\n";
     }
-
-    int quantidade, codigo;
-    char tipo;
-    std::string titulo, categoria;
-
-    while (arquivo >> tipo >> quantidade >> codigo >> titulo)
+    else
     {
-        if (tipo == 'F')
-        {
-            cadastrarFilmeFita(quantidade, codigo, titulo);
-        }
-        else if (tipo == 'D')
-        {
-            arquivo >> categoria;
-            cadastrarFilmeDVD(quantidade, codigo, titulo, categoria);
-        }
-    }
+        int quantidade, codigo;
+        char tipo;
+        std::string titulo, categoria;
 
-    arquivo.close();
+        while (arquivo >> tipo >> quantidade >> codigo >> titulo)
+        {
+            if (tipo == 'F')
+            {
+                cadastrarFilmeFita(quantidade, codigo, titulo);
+            }
+            else if (tipo == 'D')
+            {
+                arquivo >> categoria;
+                cadastrarFilmeDVD(quantidade, codigo, titulo, categoria);
+            }
+        }
+        arquivo.close();
+    }
 }
 
 void Locadora::cadastrarFilmeFita(int quantidade, int codigo, std::string titulo)
 {
-    estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, true));
-    std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+    if (Locadora::buscarFilme(codigo) == nullptr)
+    {
+        estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, true));
+        std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+    }
+    else
+    {
+        std::cout << "ERRO: codigo (" << codigo << ") repetido\n";
+    }
 }
 
 void Locadora::cadastrarFilmeDVD(int quantidade, int codigo, std::string titulo, std::string categoria)
 {
-    estoqueFilmes.push_back(new DVD(codigo, titulo, quantidade, categoria));
-    std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+    if (Locadora::buscarFilme(codigo) == nullptr)
+    {
+        if (categoria == "Lancamento" || categoria == "Promocao" || categoria == "Estoque")
+        {
+            estoqueFilmes.push_back(new DVD(codigo, titulo, quantidade, categoria));
+            std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+        }
+        else
+        {
+            std::cout << "ERRO: categoria (" << categoria << ") invalida." << std::endl;
+            std::cout << "Categorias possiveis: Lancamento, Promocao e Estoque." << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "ERRO: codigo (" << codigo << ") repetido" << std::endl;
+    }
 }
 
 void Locadora::removerFilme(int codigo)
