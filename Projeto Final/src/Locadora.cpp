@@ -62,7 +62,9 @@ bool Locadora::validarCPF(std::string cpf)
 
 void Locadora::lerArquivoCadastro(std::string nomeArquivo)
 {
-    std::ifstream arquivo(nomeArquivo);
+    // Abre o arquivo
+    std::ifstream arquivo(nomeArquivo, std::ifstream::in);
+
     if (!arquivo.is_open())
     {
         std::cout << "ERRO: arquivo inexistente.\n";
