@@ -22,11 +22,12 @@ public:
     void alugarFilme(std::string cpf);
     void devolverFilme( std::string cpf, int dias);
     double calcularTotalPagar(std::vector<int> locacoes, int dias);
+    void relatorioAlugueis();
   
     
 private:
     std::vector<Filme *> estoqueFilmes;
-    std::vector<Cliente> clientes;
+    std::vector<Cliente *> clientes;
     std::unordered_map<std::string, std::vector<int>> locacoesEmCurso;
 
     Filme* buscarFilme(int codigo);

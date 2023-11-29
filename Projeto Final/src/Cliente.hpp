@@ -10,9 +10,9 @@ class Cliente {
 public:
     Cliente( std::string cpf, std::string nome);
 
-    const std::string getCPF();
-    const std::string getNome();
-    const std::vector<int> getLocacoes(); 
+    std::string getCPF();
+    std::string getNome();
+    std::vector<int> getLocacoes(); 
     void adicionarLocacao(int codigo); 
 
 private:

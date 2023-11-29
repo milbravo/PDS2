@@ -5,15 +5,15 @@
 Cliente::Cliente(std::string cpf, std::string nome)
     : cpf(cpf), nome(nome) {}
 
-const std::string Cliente::getCPF(){
+std::string Cliente::getCPF(){
     return cpf;
 }
 
-const std::string Cliente::getNome(){
+std::string Cliente::getNome(){
     return nome;
 }
 
-const std::vector<int> Cliente::getLocacoes(){
+std::vector<int> Cliente::getLocacoes(){
     return locacoes;
 }
 

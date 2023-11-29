@@ -63,7 +63,7 @@ bool Locadora::validarCPF(std::string cpf)
 void Locadora::lerArquivoCadastro(std::string nomeArquivo)
 {
     // Abre o arquivo
-    std::ifstream arquivo(nomeArquivo, std::ifstream::in);
+    std::ifstream arquivo(nomeArquivo.c_str(), std::ifstream::in);
 
     if (!arquivo.is_open())
     {
@@ -175,7 +175,7 @@ void Locadora::cadastrarCliente(std::string cpf, std::string nome)
     {
         if (buscarCliente(cpf) == nullptr)
         {
-            clientes.emplace_back(cpf, nome);
+            clientes.push_back(new Cliente(cpf, nome));
             std::cout << "Cliente " << cpf << " cadastrado com sucesso.\n";
         }
         else
@@ -191,13 +191,12 @@ void Locadora::cadastrarCliente(std::string cpf, std::string nome)
 
 void Locadora::removerCliente(std::string cpf)
 {
-    auto it = std::remove_if(clientes.begin(), clientes.end(),
-                             [cpf](Cliente cliente)
-                             { return cliente.getCPF() == cpf; });
-
+    auto it = std::find_if(clientes.begin(), clientes.end(), [cpf](Cliente *cliente)
+                           { return cliente->getCPF() == cpf; });
     if (it != clientes.end())
     {
-        clientes.erase(it, clientes.end());
+        delete *it;
+        clientes.erase(it);
         std::cout << "Cliente " << cpf << " removido com sucesso.\n";
     }
     else
@@ -208,24 +207,24 @@ void Locadora::removerCliente(std::string cpf)
 
 void Locadora::listarClientes(char ordenacao)
 {
-    std::vector<Cliente> clientesOrdenados = clientes;
+    std::vector<Cliente *> clientesOrdenados = clientes;
 
     if (ordenacao == 'C')
     {
         std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),
-                  [](Cliente a, Cliente b)
-                  { return a.getCPF() < b.getCPF(); });
+                  [](Cliente *a, Cliente *b)
+                  { return a->getCPF() < b->getCPF(); });
     }
     else if (ordenacao == 'N')
     {
         std::sort(clientesOrdenados.begin(), clientesOrdenados.end(),
-                  [](Cliente a, Cliente b)
-                  { return a.getNome() < b.getNome(); });
+                  [](Cliente *a, Cliente *b)
+                  { return a->getNome() < b->getNome(); });
     }
 
     for (auto cliente : clientesOrdenados)
     {
-        std::cout << cliente.getCPF() << " " << cliente.getNome() << "\n";
+        std::cout << cliente->getCPF() << " " << cliente->getNome() << "\n";
     }
 }
 
@@ -241,13 +240,8 @@ void Locadora::alugarFilme(std::string cpf)
 
             std::cout << "Cliente " << cpf << " alugou os filmes:\n";
 
-            while (std::cin >> codigo)
+            while (std::cin >> codigo && codigo != -1)
             {
-                if (codigo == -1)
-                {
-                    break;
-                }
-
                 Filme *filme = buscarFilme(codigo);
                 if (filme != nullptr)
                 {
@@ -353,13 +347,34 @@ Filme *Locadora::buscarFilme(int codigo)
 Cliente *Locadora::buscarCliente(std::string cpf)
 {
     auto it = std::find_if(clientes.begin(), clientes.end(),
-                           [cpf](Cliente cliente)
-                           { return cliente.getCPF() == cpf; });
+                           [cpf](Cliente *cliente)
+                           { return cliente->getCPF() == cpf; });
 
-    return (it != clientes.end()) ? const_cast<Cliente *>(&(*it)) : nullptr;
+    return (it != clientes.end()) ? *it : nullptr;
 }
 
 bool Locadora::clientePossuiLocacao(std::string cpf)
 {
     return locacoesEmCurso.find(cpf) != locacoesEmCurso.end();
+}
+
+void Locadora::relatorioAlugueis()
+{
+    std::string nome;
+
+    std::unordered_map<std::string, std::vector<int>>::iterator it;
+    std::cout << "----------------------------------------------------" << std::endl;
+    std::cout << "Relatorio de alugueis" << std::endl;
+    std::cout << std::endl;
+    for (it = locacoesEmCurso.begin(); it != locacoesEmCurso.end(); it++)
+    {
+        nome = Locadora::buscarCliente(it->first)->getNome();
+        std::cout << it->first << " " << nome << " ";
+        for (int codigo : it->second)
+        {
+            std::cout << codigo << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------------------------------------------------" << std::endl;
 }
