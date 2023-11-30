@@ -13,11 +13,11 @@ std::string Cliente::getNome(){
     return nome;
 }
 
-std::vector<int> Cliente::getLocacoes(){
+/*std::vector<int> Cliente::getLocacoes(){
     return locacoes;
 }
 
 void Cliente::adicionarLocacao(int codigo) {
     locacoes.push_back(codigo);
 }
-
+*/
