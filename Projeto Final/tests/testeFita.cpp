@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include "FITA.hpp"
 
-TEST_CASE("Teste DVD - Geral")
+TEST_CASE("Teste Fita - Geral")
 {
     Fita teste = Fita(99, "FilmeTeste", 3, true);
     Fita teste2 = Fita(98, "FilmeTeste", 3, false);
