@@ -14,8 +14,7 @@ bool Locadora::validarCPF(std::string cpf)
     // Verifica se o CPF tem 11 dígitos numéricos
     if (cpf.length() != 11 || !std::all_of(cpf.begin(), cpf.end(), ::isdigit))
     {
-        std::cout << "ERRO: CPF deve ter exatamente 11 dígitos numéricos.\n";
-        return false; // Retorna falso se o CPF não tiver 11 dígitos ou se não for composto apenas por dígitos
+        throw std::runtime_error("ERRO: CPF deve ter exatamente 11 dígitos numéricos.");
     }
 
     // Algoritmo de validação do CPF
@@ -34,8 +33,7 @@ bool Locadora::validarCPF(std::string cpf)
     // Verifica se o primeiro dígito verificador está correto
     if (resto != (cpf[9] - '0'))
     {
-        // std::cout << "ERRO: CPF INVALIDO.\n";
-        return false; // Retorna falso se o primeiro dígito verificador estiver incorreto
+        throw std::runtime_error("ERRO: CPF INVALIDO.");
     }
 
     soma = 0;
@@ -52,8 +50,7 @@ bool Locadora::validarCPF(std::string cpf)
     // Verifica se o segundo dígito verificador está correto
     if (resto != (cpf[10] - '0'))
     {
-        // std::cout << "ERRO: CPF INVALIDO.\n";
-        return false; // Retorna falso se o segundo dígito verificador estiver incorreto
+        throw std::runtime_error("ERRO: CPF INVALIDO.");
     }
 
     // Se passou por todas as verificações, o CPF é considerado válido
@@ -64,84 +61,113 @@ void Locadora::lerArquivoCadastro(std::string nomeArquivo)
 {
     // Abre o arquivo
     std::ifstream arquivo(nomeArquivo.c_str(), std::ifstream::in);
-
-    if (!arquivo.is_open())
+    try
     {
-        std::cout << "ERRO: arquivo (" << nomeArquivo << ") inexistente.\n";
-    }
-    else
-    {
-        int quantidade, codigo;
-        char tipo;
-        std::string titulo, categoria;
-
-        while (arquivo >> tipo >> quantidade >> codigo >> titulo)
+        if (!arquivo.is_open())
         {
-            if (tipo == 'F')
-            {
-                cadastrarFilmeFita(quantidade, codigo, titulo);
-            }
-            else if (tipo == 'D')
-            {
-                arquivo >> categoria;
-                cadastrarFilmeDVD(quantidade, codigo, titulo, categoria);
-            }
+            throw std::runtime_error("ERRO: arquivo (" + nomeArquivo + ") inexistente.");
         }
-        arquivo.close();
+        else
+        {
+            int quantidade, codigo;
+            char tipo;
+            std::string titulo, categoria;
+
+            while (arquivo >> tipo >> quantidade >> codigo >> titulo)
+            {
+                if (tipo == 'F')
+                {
+                    cadastrarFilmeFita(quantidade, codigo, titulo);
+                }
+                else if (tipo == 'D')
+                {
+                    arquivo >> categoria;
+                    cadastrarFilmeDVD(quantidade, codigo, titulo, categoria);
+                }
+            }
+            arquivo.close();
+        }
+    }
+    catch (const std::exception &ex)
+    {
+        std::cerr << ex.what() << std::endl;
     }
 }
 
 void Locadora::cadastrarFilmeFita(int quantidade, int codigo, std::string titulo)
 {
-    if (Locadora::buscarFilme(codigo) == nullptr)
+    try
     {
-        estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, true));
-        std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+        if (Locadora::buscarFilme(codigo) == nullptr)
+        {
+            estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, true));
+            std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+        }
+        else
+        {
+            throw std::runtime_error("ERRO: codigo (" + std::to_string(codigo) + ") repetido");
+        }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "ERRO: codigo (" << codigo << ") repetido\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 
 void Locadora::cadastrarFilmeDVD(int quantidade, int codigo, std::string titulo, std::string categoria)
 {
-    if (Locadora::buscarFilme(codigo) == nullptr)
+    try
     {
-        if (categoria == "Lancamento" || categoria == "Promocao" || categoria == "Estoque")
+        if (Locadora::buscarFilme(codigo) == nullptr)
         {
-            estoqueFilmes.push_back(new DVD(codigo, titulo, quantidade, categoria));
-            std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+            try
+            {
+                if (categoria == "Lancamento" || categoria == "Promocao" || categoria == "Estoque")
+                {
+                    estoqueFilmes.push_back(new DVD(codigo, titulo, quantidade, categoria));
+                    std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
+                }
+                else
+                {
+                    throw std::runtime_error("ERRO: categoria (" + categoria + ") invalida.\nCategorias possiveis: Lancamento, Promocao e Estoque.");
+                }
+            }
+            catch (const std::exception &ex)
+            {
+                std::cerr << ex.what() << std::endl;
+            }
         }
         else
         {
-            std::cout << "ERRO: categoria (" << categoria << ") invalida." << std::endl;
-            std::cout << "Categorias possiveis: Lancamento, Promocao e Estoque." << std::endl;
+            throw std::runtime_error("ERRO: codigo (" + std::to_string(codigo) + ") repetido");
         }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "ERRO: codigo (" << codigo << ") repetido" << std::endl;
+        std::cerr << ex.what() << std::endl;
     }
 }
 
 void Locadora::removerFilme(int codigo)
 {
-    // auto it = std::remove_if(estoqueFilmes.begin(), estoqueFilmes.end(),
-    //                         [codigo](Filme *filme)
-    //                        { return filme->getCodigo() == codigo; });
-
     auto it = std::find_if(estoqueFilmes.begin(), estoqueFilmes.end(), [codigo](Filme *filme)
                            { return filme->getCodigo() == codigo; });
-    if (it != estoqueFilmes.end())
+    try
     {
-        delete *it;
-        estoqueFilmes.erase(it);
-        std::cout << "Filme " << codigo << " removido com sucesso.\n";
+        if (it != estoqueFilmes.end())
+        {
+            delete *it;
+            estoqueFilmes.erase(it);
+            std::cout << "Filme " << codigo << " removido com sucesso.\n";
+        }
+        else
+        {
+            throw std::runtime_error("ERRO: codigo inexistente.");
+        }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "ERRO: codigo inexistente.\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 
@@ -171,21 +197,28 @@ void Locadora::listarFilmes(char ordenacao)
 
 void Locadora::cadastrarCliente(std::string cpf, std::string nome)
 {
-    if (validarCPF(cpf))
+    try
     {
-        if (buscarCliente(cpf) == nullptr)
+        if (validarCPF(cpf))
         {
-            clientes.push_back(new Cliente(cpf, nome));
-            std::cout << "Cliente " << cpf << " cadastrado com sucesso.\n";
+            if (buscarCliente(cpf) == nullptr)
+            {
+                clientes.push_back(new Cliente(cpf, nome));
+                std::cout << "Cliente " << cpf << " cadastrado com sucesso.\n";
+            }
+            else
+            {
+                throw std::runtime_error("CPF " + cpf + " repetido.");
+            }
         }
         else
         {
-            std::cout << "CPF " << cpf << " repetido.\n";
+            throw std::runtime_error("CPF " + cpf + " inválido.");
         }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "CPF " << cpf << " inválido.\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 
@@ -193,15 +226,23 @@ void Locadora::removerCliente(std::string cpf)
 {
     auto it = std::find_if(clientes.begin(), clientes.end(), [cpf](Cliente *cliente)
                            { return cliente->getCPF() == cpf; });
-    if (it != clientes.end())
+
+    try
     {
-        delete *it;
-        clientes.erase(it);
-        std::cout << "Cliente " << cpf << " removido com sucesso.\n";
+        if (it != clientes.end())
+        {
+            delete *it;
+            clientes.erase(it);
+            std::cout << "Cliente " << cpf << " removido com sucesso.\n";
+        }
+        else
+        {
+            throw std::runtime_error("CPF " + cpf + " não encontrado para remoção.");
+        }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "CPF " << cpf << " não encontrado para remoção.\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 
@@ -230,92 +271,106 @@ void Locadora::listarClientes(char ordenacao)
 
 void Locadora::alugarFilme(std::string cpf)
 {
-    Cliente *cliente = buscarCliente(cpf);
-    if (cliente != nullptr)
+    try
     {
-        if (!clientePossuiLocacao(cpf))
+        Cliente *cliente = buscarCliente(cpf);
+        if (cliente != nullptr)
         {
-            std::vector<int> codigosFilmes;
-            int codigo;
-
-            std::cout << "Cliente " << cpf << " alugou os filmes:\n";
-
-            while (std::cin >> codigo && codigo != -1)
+            if (!clientePossuiLocacao(cpf))
             {
-                Filme *filme = buscarFilme(codigo);
-                if (filme != nullptr)
+                std::vector<int> codigosFilmes;
+                int codigo;
+
+                std::cout << "Cliente " << cpf << " alugou os filmes:\n";
+
+                while (std::cin >> codigo && codigo != -1)
                 {
-                    if (filme->getQuantidade() > 0)
-                    { // Verifica se há filmes disponíveis
-                        codigosFilmes.push_back(codigo);
-                        filme->diminuirQuantidade(); // Reduz o estoque do filme
-                        std::cout << filme->getCodigo() << " " << filme->getTitulo() << " " << filme->getTipo() << "\n";
+                    Filme *filme = buscarFilme(codigo);
+                    if (filme != nullptr)
+                    {
+                        if (filme->getQuantidade() > 0)
+                        { // Verifica se há filmes disponíveis
+                            codigosFilmes.push_back(codigo);
+                            filme->diminuirQuantidade(); // Reduz o estoque do filme
+                            std::cout << filme->getCodigo() << " " << filme->getTitulo() << " " << filme->getTipo() << "\n";
+                        }
+                        else
+                        {
+                            throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " sem estoque disponível.");
+                        }
                     }
                     else
                     {
-                        std::cout << "ERRO: Filme " << std::to_string(codigo) << " sem estoque disponível.\n";
+                        throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " inexistente.");
                     }
                 }
-                else
-                {
-                    std::cout << "ERRO: Filme " << std::to_string(codigo) << " inexistente.\n";
-                }
-            }
 
-            locacoesEmCurso[cpf] = codigosFilmes;
+                locacoesEmCurso[cpf] = codigosFilmes;
+            }
+            else
+            {
+                throw std::runtime_error("ERRO: Cliente " + cpf + " já possui uma locação em curso.");
+            }
         }
         else
         {
-            std::cout << "ERRO: Cliente " << cpf << " já possui uma locação em curso\n";
+            throw std::runtime_error("ERRO: CPF inexistente.");
         }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "ERRO: CPF inexistente.\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 
 void Locadora::devolverFilme(std::string cpf, int dias)
 {
-    Cliente *cliente = buscarCliente(cpf);
-    if (cliente != nullptr)
+    try
     {
-        if (clientePossuiLocacao(cpf))
+        Cliente *cliente = buscarCliente(cpf);
+        if (cliente != nullptr)
         {
-            std::cout << "Cliente " << cpf << " devolveu os filmes:\n";
-
-            for (int codigo : locacoesEmCurso[cpf])
+            if (clientePossuiLocacao(cpf))
             {
-                Filme *filme = buscarFilme(codigo);
-                if (filme != nullptr)
+                std::cout << "Cliente " << cpf << " devolveu os filmes:\n";
+
+                for (int codigo : locacoesEmCurso[cpf])
                 {
-                    std::cout << codigo << " [" << filme->calcularValorLocacao(dias) << "]\n";
+                    Filme *filme = buscarFilme(codigo);
+                    if (filme != nullptr)
+                    {
+                        std::cout << codigo << " [" << filme->calcularValorLocacao(dias) << "]\n";
+                    }
                 }
+
+                double totalPagar = calcularTotalPagar(locacoesEmCurso[cpf], dias);
+                std::cout << "Total a pagar: [" << totalPagar << "]\n";
+
+                // Adiciona os filmes devolvidos de volta ao estoque
+                for (int codigo : locacoesEmCurso[cpf])
+                {
+                    Filme *filme = buscarFilme(codigo);
+                    if (filme != nullptr)
+                    {
+                        filme->aumentarQuantidade();
+                    }
+                }
+
+                locacoesEmCurso.erase(cpf);
             }
-
-            double totalPagar = calcularTotalPagar(locacoesEmCurso[cpf], dias);
-            std::cout << "Total a pagar: [" << totalPagar << "]\n";
-
-            // Adiciona os filmes devolvidos de volta ao estoque
-            for (int codigo : locacoesEmCurso[cpf])
+            else
             {
-                Filme *filme = buscarFilme(codigo);
-                if (filme != nullptr)
-                {
-                    filme->aumentarQuantidade();
-                }
+                throw std::runtime_error("ERRO: Cliente " + cpf + " não possui locação em curso.");
             }
-
-            locacoesEmCurso.erase(cpf);
         }
         else
         {
-            std::cout << "ERRO: Cliente " << cpf << " não possui locação em curso:\n";
+            throw std::runtime_error("ERRO: CPF inexistente.");
         }
     }
-    else
+    catch (const std::exception &ex)
     {
-        std::cout << "ERRO: CPF inexistente.\n";
+        std::cerr << ex.what() << std::endl;
     }
 }
 

@@ -13,12 +13,14 @@ std::string DVD::getTipo()
 double DVD::calcularValorLocacao(int dias)
 {
     double valor = 0.0;
+    if (dias == 0)
+        dias = 1;
 
     if (categoria == "Lancamento")
     {
         valor = 20.0 * dias;
     }
-    else if (categoria == "Estoque" || categoria == "Promocao")
+    else if (categoria == "Estoque")
     {
         valor = 10.0 * dias;
     }

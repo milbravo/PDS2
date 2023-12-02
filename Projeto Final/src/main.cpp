@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <stdexcept>
 #include "Locadora.hpp"
@@ -10,7 +9,7 @@ int main()
     std::string comando;
     std::cout << "------------------------LOCADORA--------------------------" << std::endl;
     std::cout << "Bem vindo!" << std::endl;
-    std::cout << "Abaixo está o menu de comandos para a utilizacao da" << std::endl;
+    std::cout << "Abaixo esta o menu de comandos para a utilizacao da" << std::endl;
     std::cout << "ferramenta:" << std::endl;
     std::cout << std::endl;
     std::cout << "MENU" << std::endl;
@@ -125,12 +124,12 @@ int main()
             }
             else
             {
-                std::cout << "Erro: Comando inválido.\n";
+                throw std::invalid_argument("Erro: Comando invalido. Digite HELP para ver os comando disponiveis");
             }
         }
         catch (const std::exception &e)
         {
-            std::cerr << "Erro: " << e.what() << "\n";
+            std::cout << e.what() << "\n";
         }
         std::cout << std::endl;
         std::cout << "Digite um comando (ou 'FS' para sair): " << std::endl;

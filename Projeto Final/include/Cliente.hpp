@@ -13,8 +13,6 @@ public:
 
     std::string getCPF();
     std::string getNome();
-    /*std::vector<int> getLocacoes();
-    void adicionarLocacao(int codigo); */
 
 private:
     std::string cpf;
