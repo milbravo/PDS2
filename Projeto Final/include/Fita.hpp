@@ -1,6 +1,8 @@
 #ifndef FITA_HPP
 #define FITA_HPP
 
+#include <random>
+#include <algorithm>
 #include "Filme.hpp"
 
 class Fita : public Filme

@@ -4,8 +4,8 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
-#include <stdexcept>
-#include <regex>
+
+// #include <regex>
 
 Locadora::Locadora() {}
 
@@ -100,7 +100,9 @@ void Locadora::cadastrarFilmeFita(int quantidade, int codigo, std::string titulo
     {
         if (Locadora::buscarFilme(codigo) == nullptr)
         {
-            estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, true));
+            // Gera aleatoriamente um numero 0 ou 1 para indicar se a fita está rebobinada
+            static auto gen = std::bind(std::uniform_int_distribution<>(0, 1), std::default_random_engine());
+            estoqueFilmes.push_back(new Fita(codigo, titulo, quantidade, gen()));
             std::cout << "Filme " << codigo << " cadastrado com sucesso.\n";
         }
         else
@@ -201,14 +203,21 @@ void Locadora::cadastrarCliente(std::string cpf, std::string nome)
     {
         if (validarCPF(cpf))
         {
-            if (buscarCliente(cpf) == nullptr)
+            try
             {
-                clientes.push_back(new Cliente(cpf, nome));
-                std::cout << "Cliente " << cpf << " cadastrado com sucesso.\n";
+                if (buscarCliente(cpf) == nullptr)
+                {
+                    clientes.push_back(new Cliente(cpf, nome));
+                    std::cout << "Cliente " << cpf << " cadastrado com sucesso.\n";
+                }
+                else
+                {
+                    throw std::runtime_error("CPF " + cpf + " repetido.");
+                }
             }
-            else
+            catch (const std::runtime_error &ex)
             {
-                throw std::runtime_error("CPF " + cpf + " repetido.");
+                std::cerr << ex.what() << std::endl;
             }
         }
         else
@@ -286,22 +295,36 @@ void Locadora::alugarFilme(std::string cpf)
                 while (std::cin >> codigo && codigo != -1)
                 {
                     Filme *filme = buscarFilme(codigo);
-                    if (filme != nullptr)
+                    try
                     {
-                        if (filme->getQuantidade() > 0)
-                        { // Verifica se há filmes disponíveis
-                            codigosFilmes.push_back(codigo);
-                            filme->diminuirQuantidade(); // Reduz o estoque do filme
-                            std::cout << filme->getCodigo() << " " << filme->getTitulo() << " " << filme->getTipo() << "\n";
+                        if (filme != nullptr)
+                        {
+                            try
+                            {
+                                if (filme->getQuantidade() > 0)
+                                { // Verifica se há filmes disponíveis
+                                    codigosFilmes.push_back(codigo);
+                                    filme->diminuirQuantidade(); // Reduz o estoque do filme
+                                    std::cout << filme->getCodigo() << " " << filme->getTitulo() << " " << filme->getTipo() << "\n";
+                                }
+                                else
+                                {
+                                    throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " sem estoque disponível.");
+                                }
+                            }
+                            catch (const std::runtime_error &ex)
+                            {
+                                std::cerr << ex.what() << std::endl;
+                            }
                         }
                         else
                         {
-                            throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " sem estoque disponível.");
+                            throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " inexistente.");
                         }
                     }
-                    else
+                    catch (const std::runtime_error &ex)
                     {
-                        throw std::runtime_error("ERRO: Filme " + std::to_string(codigo) + " inexistente.");
+                        std::cerr << ex.what() << std::endl;
                     }
                 }
 
@@ -330,37 +353,45 @@ void Locadora::devolverFilme(std::string cpf, int dias)
         Cliente *cliente = buscarCliente(cpf);
         if (cliente != nullptr)
         {
-            if (clientePossuiLocacao(cpf))
+            try
             {
-                std::cout << "Cliente " << cpf << " devolveu os filmes:\n";
 
-                for (int codigo : locacoesEmCurso[cpf])
+                if (clientePossuiLocacao(cpf))
                 {
-                    Filme *filme = buscarFilme(codigo);
-                    if (filme != nullptr)
+                    std::cout << "Cliente " << cpf << " devolveu os filmes:\n";
+
+                    for (int codigo : locacoesEmCurso[cpf])
                     {
-                        std::cout << codigo << " [" << filme->calcularValorLocacao(dias) << "]\n";
+                        Filme *filme = buscarFilme(codigo);
+                        if (filme != nullptr)
+                        {
+                            std::cout << codigo << " [" << filme->calcularValorLocacao(dias) << "]\n";
+                        }
                     }
+
+                    double totalPagar = calcularTotalPagar(locacoesEmCurso[cpf], dias);
+                    std::cout << "Total a pagar: [" << totalPagar << "]\n";
+
+                    // Adiciona os filmes devolvidos de volta ao estoque
+                    for (int codigo : locacoesEmCurso[cpf])
+                    {
+                        Filme *filme = buscarFilme(codigo);
+                        if (filme != nullptr)
+                        {
+                            filme->aumentarQuantidade();
+                        }
+                    }
+
+                    locacoesEmCurso.erase(cpf);
                 }
-
-                double totalPagar = calcularTotalPagar(locacoesEmCurso[cpf], dias);
-                std::cout << "Total a pagar: [" << totalPagar << "]\n";
-
-                // Adiciona os filmes devolvidos de volta ao estoque
-                for (int codigo : locacoesEmCurso[cpf])
+                else
                 {
-                    Filme *filme = buscarFilme(codigo);
-                    if (filme != nullptr)
-                    {
-                        filme->aumentarQuantidade();
-                    }
+                    throw std::runtime_error("ERRO: Cliente " + cpf + " não possui locação em curso.");
                 }
-
-                locacoesEmCurso.erase(cpf);
             }
-            else
+            catch (const std::runtime_error &ex)
             {
-                throw std::runtime_error("ERRO: Cliente " + cpf + " não possui locação em curso.");
+                std::cerr << ex.what() << std::endl;
             }
         }
         else

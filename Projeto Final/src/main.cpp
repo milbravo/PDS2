@@ -5,7 +5,6 @@
 int main()
 {
     Locadora locadora;
-
     std::string comando;
     std::cout << "------------------------LOCADORA--------------------------" << std::endl;
     std::cout << "Bem vindo!" << std::endl;
@@ -116,7 +115,7 @@ int main()
                 std::cout << "RC <CPF>" << std::endl;
                 std::cout << "LC <Ordenacao: C|N> (C = CPF, N = nome)" << std::endl;
                 std::cout << "AL <CPF> <Codigo1> … <Codigo N> <-1> (-1 atua como flag para indicar o fim dos codigos)" << std::endl;
-                std::cout << "DV <CPF>" << std::endl;
+                std::cout << "DV <CPF> <Dias de locacao>" << std::endl;
                 std::cout << "RA  (exibe relatorio de alugueis)" << std::endl;
                 std::cout << "HELP (exibe detalhes dos comandos)" << std::endl;
                 std::cout << "FS (finalizar o sistema)" << std::endl;
